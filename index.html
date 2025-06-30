@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rundown → XML konvertor</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f7f7f7; margin: 0; padding: 0; }
+    .container { max-width: 500px; margin: 40px auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px #0001; padding: 2em; }
+    h1 { text-align: center; color: #2a4d7a; }
+    input[type=file] { display: block; margin: 2em auto 1em auto; }
+    button { display: block; margin: 0 auto; padding: 0.7em 2em; background: #2a4d7a; color: #fff; border: none; border-radius: 4px; font-size: 1em; cursor: pointer; }
+    button:disabled { background: #aaa; }
+    .result { margin-top: 2em; text-align: center; }
+    .download-link { display: inline-block; margin-top: 1em; color: #2a4d7a; text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Rundown → XML konvertor</h1>
+    <form id="uploadForm">
+      <input type="file" id="fileInput" accept=".json,.rundown" required />
+      <label style="display:block; text-align:center; margin:1em 0;">
+        <input type="checkbox" id="resetXml" name="reset" value="1" /> Vytvoriť nový XML súbor (prepísať existujúci)
+      </label>
+      <button type="submit">Nahrať a konvertovať</button>
+    </form>
+    <div class="result" id="result"></div>
+  </div>
+  <script>
+    const form = document.getElementById('uploadForm');
+    const fileInput = document.getElementById('fileInput');
+    const result = document.getElementById('result');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      result.innerHTML = '';
+      const file = fileInput.files[0];
+      if (!file) return;
+      const formData = new FormData();
+      formData.append('file', file);
+      if (document.getElementById('resetXml').checked) {
+        formData.append('reset', '1');
+      }
+      try {
+        const res = await fetch('/upload', {
+          method: 'POST',
+          body: formData
+        });
+        if (!res.ok) throw new Error('Chyba pri generovaní XML');
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        result.innerHTML = `<a class="download-link" href="${url}" download="output.xml">Stiahnuť vygenerované XML</a>`;
+      } catch (err) {
+        result.textContent = 'Chyba: ' + err.message;
+      }
+    });
+  </script>
+</body>
+</html> 
