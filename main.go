@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-// Opravená štruktúra podľa JSON
+// Opravená štruktúra podľa JSON.
 
 type Media struct {
 	FileName  string `json:"FileName"`
